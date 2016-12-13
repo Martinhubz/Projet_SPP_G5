@@ -7,23 +7,23 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-#define NOMBRE_IMAGES 10
-#define LIGNES_MAX 100
-#define COLONNES_MAX 100
+#define NOMBRE_IMAGES 10	/*Nombre d'images PBM pour le niveau statique*/
+#define LIGNES_MAX 100		/*Position initiale Y maximale de l'avion*/
+#define COLONNES_MAX 100	/*Position initiale X maximale de l'avion*/
 
 int main(int argc, char** argv)
 {
 	int i;
-//	char ecranChoisi[3][5] = {{'s','t','a','t'},{'d','y','n','a'},{'i','n','t','e'}};
+/*	char ecranChoisi[3][5] = {{'s','t','a','t'},{'d','y','n','a'},{'i','n','t','e'}};*/
 	char ecranChoisi[3][5]={"stat","dyna","inte"};
 	system("clear");
 
 
-	if(argc >= 2)	//On vérifie si le programme a été exécuté avec un paramètre
+	if(argc >= 2)	/*On vérifie si le programme a été exécuté avec un paramètre*/
 	{
-		if(strcmp(argv[1], "-stat") == 0) //On compare le paramètre à "-stat"
+		if(strcmp(argv[1], "-stat") == 0) 	/*On compare le paramètre à "-stat"*/
 		{
-			lectureHisto();//Ouverture du menu statistiques/historique
+			lectureHisto();			/*Ouverture du menu statistiques/historique*/
 		}
 
 		else
@@ -41,15 +41,15 @@ int main(int argc, char** argv)
 		srand(time(NULL));
 		n = rand()%3;
 
-		switch(n)	//Détermination du paramètre à utiliser
+		switch(n)	/*Détermination léatoire du paramètre à utiliser*/
 		{
 			case 0:
 			{
 			compteurStat++;
 			m = rand()%NOMBRE_IMAGES;
-			sprintf(numeroImage, "%d", m);	//Conversion de m en char
+			sprintf(numeroImage, "%d", m);	/*Conversion de m en char*/
 
-			parametre = strcat(numeroImage, ".PBM");	//ex: 4.PBM
+			parametre = strcat(numeroImage, ".PBM");	/*ex: 4.PBM*/
 
 			break;
 			}
@@ -65,6 +65,8 @@ int main(int argc, char** argv)
 			case 2:
 			{
 			compteurInte++;
+
+		/* Détermination aléatoire de la position intitale de l'avion*/
 			ligneRand = rand()%LIGNES_MAX;
 			colonneRand = rand()%COLONNES_MAX;
 
@@ -82,17 +84,19 @@ int main(int argc, char** argv)
 		}
 
 		ecritureHisto(ecranChoisi[n], parametre);
-//		execl(strcat(getenv("EXIASAVER_HOME"), ecranChoisi[n]), ecranChoisi[n], parametre, NULL);
+	/*Exécution de l'exécutable choisi avec son paramètre*/
+		execl(strcat(getenv("EXIASAVER_HOME"), ecranChoisi[n]), ecranChoisi[n], parametre, NULL);
 
 	}
 	
 	return 0;
 }
 
+/*Fonction qui écrit les infos de l'écran lancé dans le fichier Historique*/
 void ecritureHisto(char *typeEcran, char *parametre)
 {
 	pid_t parent = getpid();
-	pid_t pid = fork();	//Création du processus fils
+	pid_t pid = fork();	/*Création du processus fils*/
 	
 	if(pid == 1)
 	{
@@ -111,8 +115,10 @@ void ecritureHisto(char *typeEcran, char *parametre)
 	{
 		time_t temps;
 		time(&temps);
+/*Détermination de l'heure locale*/
 		struct tm* tempsLocal = localtime(&temps);
 		char chaineTemps[25], ligneActuelle[25];
+
 		strcpy(chaineTemps, asctime(tempsLocal));
 
 		chaineTemps[19] = '\0';
@@ -121,6 +127,7 @@ void ecritureHisto(char *typeEcran, char *parametre)
 
 		if(fichier != NULL)
 		{
+		/*Ecriture des infos écran dans le fichier Historique*/
 			fprintf(fichier, "%s | %s | %s\n", chaineTemps, typeEcran, parametre);
 		}
 
@@ -141,9 +148,12 @@ void lectureHisto()
 
 	FILE* fichier = fopen("/home/martin/ExiaSaver/Historique", "r");
 
-	while(choix != 1 && choix != 2)
+	while(choix != 3)
 	{
-		printf("\n\nMenu:\n1-Historique\n2-Statistiques\n\n");
+	system("clear");
+
+	/*Menu Historique*/
+		printf("\n\nMenu:\n1- Historique\n2- Statistiques\n3- Exit\n\n");
 		scanf("%d", &choix);
 
 		switch(choix)
@@ -156,12 +166,14 @@ void lectureHisto()
 
 				for(i = 0; i < 2; i++)
 				{
+				/*On passe les deux premières lignes*/
 					fgets(ligneHistorique, sizeof ligneHistorique, fichier) != NULL;
 				}
 
 				system("clear");
 
-				while(fgets(ligneHistorique, sizeof ligneHistorique, fichier) != NULL)
+			/*On affiche la ligne lue du fichier jusqu'à la dernière*/
+				while(fgets(ligneHistorique, sizeof ligneHistorique, fichier) != NULL) 
 				{
 					printf("%s", ligneHistorique);
 				}
@@ -175,6 +187,13 @@ void lectureHisto()
 			{
 				system("clear");
 				printf("Machine a statistiques defaillante, veuillez reessayer plus tard\n\n");
+
+			break;
+			}
+
+			case 3:
+			{
+				system("exit");
 
 			break;
 			}
